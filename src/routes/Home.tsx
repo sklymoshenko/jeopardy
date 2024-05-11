@@ -1,9 +1,9 @@
-import type { Component } from "solid-js";
-import "flowbite";
-import { useNavigate } from "@solidjs/router";
+import type { Component } from "solid-js"
+import "flowbite"
+import { useNavigate } from "@solidjs/router"
 
 const Home: Component = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
     <>
@@ -34,7 +34,7 @@ const Home: Component = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
