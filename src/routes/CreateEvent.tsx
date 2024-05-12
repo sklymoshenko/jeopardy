@@ -11,13 +11,13 @@ const CreateEvent: Component = () => {
   const [, { setGameEvent }] = useStore()
   const [eventName, setEventName] = createSignal("")
   const [players, setPlayers] = createSignal<Player[]>([])
-  const [newPlayer, setNewPlayer] = createSignal<Player>({ name: "", points: 0 })
+  const [newPlayer, setNewPlayer] = createSignal<Player>({ name: "", points: 0, id: 0 })
   const navigate = useNavigate()
   // const [roundsCount, setRoundsCount] = createSignal(2)
 
   return (
     <div>
-      <h1 class="dark:text-white mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl text-center pt-28">
+      <h1 class="dark:text-white mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl text-center xss:pt-5 md:pt-28">
         Create The Game
       </h1>
       <form class="mt-6 flex flex-col md:w-[50%] mx-auto" id="create-event-form" onSubmit={(e) => e.preventDefault()}>
@@ -55,7 +55,7 @@ const CreateEvent: Component = () => {
               required
               value={newPlayer().name}
               oninput={(e) => {
-                setNewPlayer({ name: e.target.value, points: 0 })
+                setNewPlayer({ name: e.target.value, points: 0, id: Date.now() })
               }}
             />
             <button
@@ -63,7 +63,7 @@ const CreateEvent: Component = () => {
               class="text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#3b5998]/55"
               onclick={() => {
                 setPlayers((prev) => [...prev, newPlayer()])
-                setNewPlayer({ name: "", points: 0 })
+                setNewPlayer({ name: "", points: 0, id: Date.now() })
               }}
             >
               <IoPersonAdd class=" text-base" />
@@ -157,7 +157,6 @@ const CreateEvent: Component = () => {
           onclick={() => {
             const newEvent = { name: eventName(), players: players(), id: Date.now() }
             setGameEvent(newEvent)
-            debugger
             setEventName("")
             setPlayers([])
             navigate(`/overview_event`)

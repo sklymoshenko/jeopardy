@@ -17,11 +17,11 @@ const defaultState = (): GameContextState => {
     gameEvent: {
       name: "Slay Quinz",
       players: [
-        { name: "Gregor", points: 0 },
-        { name: "Bithch", points: 2 },
-        { name: "Mem", points: 2 },
-        { name: "Sdasd asda", points: 2000 },
-        { name: "SAdasd asd asda sda", points: -500 },
+        { name: "Gregor", points: 0, id: 1 },
+        { name: "Bithch", points: 2, id: 12 },
+        { name: "Mem", points: 2, id: 13 },
+        { name: "Sdasd asda", points: 2000, id: 14 },
+        { name: "SAdasd asd asda sda", points: -500, id: 15 },
       ],
       id: 0,
     },
@@ -45,7 +45,7 @@ export const GameStateContextProvider: ParentComponent<{
   })
 
   const setGameEvent = (gameEvent: GameEvent) => {
-    debugger
+    gameEvent.players.sort((a, b) => a.points - b.points)
     setState("gameEvent", gameEvent)
   }
 
