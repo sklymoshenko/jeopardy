@@ -46,6 +46,7 @@ const defaultState = (): GameContextState => {
       id: 0,
       rounds: [
         {
+          isFinished: false,
           date: 1715703984460,
           id: 1715703984460,
           name: "asdasdasd",
@@ -82,26 +83,31 @@ const defaultState = (): GameContextState => {
               name: "asdasdasd",
               questions: [
                 {
+                  id: 1,
                   question: "asd",
                   answer: "asd",
                   points: 100,
                 },
                 {
+                  id: 2,
                   question: "asd",
                   answer: "asd",
                   points: 200,
                 },
                 {
+                  id: 3,
                   question: "asd",
                   answer: "asd",
                   points: 300,
                 },
                 {
+                  id: 4,
                   question: "asd",
                   answer: "asd",
                   points: 400,
                 },
                 {
+                  id: 5,
                   question: "asd",
                   answer: "asd",
                   points: 500,
@@ -111,6 +117,7 @@ const defaultState = (): GameContextState => {
           ],
         },
         {
+          isFinished: true,
           date: 1715703984461,
           id: 1715703984461,
           name: "asdasdasd",
@@ -147,26 +154,31 @@ const defaultState = (): GameContextState => {
               name: "asdasdasd",
               questions: [
                 {
+                  id: 1,
                   question: "asd",
                   answer: "asd",
                   points: 100,
                 },
                 {
+                  id: 2,
                   question: "asd",
                   answer: "asd",
                   points: 200,
                 },
                 {
+                  id: 3,
                   question: "asd",
                   answer: "asd",
                   points: 300,
                 },
                 {
+                  id: 4,
                   question: "asd",
                   answer: "asd",
                   points: 400,
                 },
                 {
+                  id: 5,
                   question: "asd",
                   answer: "asd",
                   points: 500,

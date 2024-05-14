@@ -301,6 +301,7 @@ const CreateRound: Component = () => {
                           onChange={(e) => {
                             const newQa = { ...questionsAnswers() }
                             newQa[+theme].question = e.target.value || ""
+                            newQa[+theme].id = Date.now()
                             setQuestionAnswers(newQa)
                           }}
                         />

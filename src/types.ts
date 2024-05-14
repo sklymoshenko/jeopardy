@@ -5,9 +5,11 @@ export type Player = {
 }
 
 export type Question = {
+  id: number
   question: string
   answer: string
   points: number
+  isAnswered?: boolean
 }
 
 export type Theme = {
@@ -22,6 +24,7 @@ export type Round = {
   id: number
   players: Player[]
   themes: Theme[]
+  isFinished?: boolean
 }
 
 export type GameEvent = {

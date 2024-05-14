@@ -10,6 +10,7 @@ import { DateTime } from "luxon"
 import { SiApachespark } from "solid-icons/si"
 import { TbConfetti } from "solid-icons/tb"
 import { AiFillEdit } from "solid-icons/ai"
+import { FaSolidPlay } from "solid-icons/fa"
 
 const EmptyRounds: Component = () => {
   const navigate = useNavigate()
@@ -43,6 +44,10 @@ const OverviewEvent: Component = () => {
     const newRounds = store.gameEvent.rounds?.filter((r) => r.id !== selectedRound()?.id)
     setGameEvent({ ...store.gameEvent, rounds: newRounds })
     setSelectedRound()
+  }
+
+  const playRound = (id: Round["id"]) => {
+    navigate(`/play_round/${id}`)
   }
 
   return (
@@ -91,7 +96,7 @@ const OverviewEvent: Component = () => {
                     <Show when={selectedUser()?.id == player.id}>
                       <button
                         type="button"
-                        class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center ml-2 animate-fadeIn"
+                        class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm p-2 text-center ml-2 animate-fadeIn"
                       >
                         <IoPersonRemove class="cursor-pointer text-sm" />
                       </button>
@@ -127,17 +132,26 @@ const OverviewEvent: Component = () => {
                       <Show when={selectedRound()?.id == round.id}>
                         <button
                           type="button"
-                          class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center ml-2 animate-fadeIn"
+                          class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm p-2 text-center ml-2  animate-fadeIn"
+                          onclick={removeRound}
+                        >
+                          <RiSystemDeleteBin2Fill />
+                        </button>
+                        <button
+                          type="button"
+                          class="text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700  font-medium rounded-lg text-sm p-2 text-center ml-2  animate-fadeIn"
                           onclick={editRound}
                         >
                           <AiFillEdit class="cursor-pointer text-sm" />
                         </button>
+                      </Show>
+                      <Show when={!round.isFinished}>
                         <button
                           type="button"
-                          class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center ml-2 animate-fadeIn"
-                          onclick={removeRound}
+                          class="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm p-2 text-center ml-2  animate-fadeIn"
+                          onclick={() => playRound(round.id)}
                         >
-                          <RiSystemDeleteBin2Fill />
+                          <FaSolidPlay class="cursor-pointer text-md" />
                         </button>
                       </Show>
                     </li>
