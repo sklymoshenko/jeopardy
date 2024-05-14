@@ -4,7 +4,7 @@ const Home = lazy(() => import("./routes/Home"))
 const CreateEvent = lazy(() => import("./routes/CreateEvent"))
 const OverviewEvent = lazy(() => import("./routes/OverviewEvent"))
 const CreateRound = lazy(() => import("./routes/CreateRound"))
-const PlayRound = lazy(() => import("./routes/PlayRound"))
+const PlayRound = lazy(() => import("./routes/PlayRound/PlayRound"))
 
 import { Component, lazy } from "solid-js"
 import { GameStateContextProvider } from "./context/store"
