@@ -17,13 +17,165 @@ const defaultState = (): GameContextState => {
     gameEvent: {
       name: "Slay Quinz",
       players: [
-        { name: "Gregor", points: 0, id: 1 },
-        { name: "Bithch", points: 2, id: 12 },
-        { name: "Mem", points: 2, id: 13 },
-        { name: "Sdasd asda", points: 2000, id: 14 },
-        { name: "SAdasd asd asda sda", points: -500, id: 15 },
+        {
+          name: "Gregor",
+          points: 0,
+          id: 1,
+        },
+        {
+          name: "Bithch",
+          points: 2,
+          id: 12,
+        },
+        {
+          name: "Mem",
+          points: 2,
+          id: 13,
+        },
+        {
+          name: "Sdasd asda",
+          points: 2000,
+          id: 14,
+        },
+        {
+          name: "SAdasd asd asda sda",
+          points: -500,
+          id: 15,
+        },
       ],
       id: 0,
+      rounds: [
+        {
+          date: 1715703984460,
+          id: 1715703984460,
+          name: "asdasdasd",
+          players: [
+            {
+              name: "Gregor",
+              points: 0,
+              id: 1,
+            },
+            {
+              name: "Bithch",
+              points: 2,
+              id: 12,
+            },
+            {
+              name: "Mem",
+              points: 2,
+              id: 13,
+            },
+            {
+              name: "Sdasd asda",
+              points: 2000,
+              id: 14,
+            },
+            {
+              name: "SAdasd asd asda sda",
+              points: -500,
+              id: 15,
+            },
+          ],
+          themes: [
+            {
+              id: 1715703983930,
+              name: "asdasdasd",
+              questions: [
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 100,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 200,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 300,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 400,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 500,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          date: 1715703984461,
+          id: 1715703984461,
+          name: "asdasdasd",
+          players: [
+            {
+              name: "Gregor",
+              points: 0,
+              id: 1,
+            },
+            {
+              name: "Bithch",
+              points: 2,
+              id: 12,
+            },
+            {
+              name: "Mem",
+              points: 2,
+              id: 13,
+            },
+            {
+              name: "Sdasd asda",
+              points: 2000,
+              id: 14,
+            },
+            {
+              name: "SAdasd asd asda sda",
+              points: -500,
+              id: 15,
+            },
+          ],
+          themes: [
+            {
+              id: 1715703983930,
+              name: "asdasdasd",
+              questions: [
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 100,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 200,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 300,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 400,
+                },
+                {
+                  question: "asd",
+                  answer: "asd",
+                  points: 500,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
   }
 }
@@ -45,8 +197,10 @@ export const GameStateContextProvider: ParentComponent<{
   })
 
   const setGameEvent = (gameEvent: GameEvent) => {
-    gameEvent.players.sort((a, b) => a.points - b.points)
-    setState("gameEvent", gameEvent)
+    const players = [...gameEvent.players].sort((a, b) => b.points - a.points)
+    const newEvent = { ...gameEvent, players }
+
+    setState("gameEvent", newEvent)
   }
 
   return (

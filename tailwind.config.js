@@ -10,6 +10,8 @@ export default {
       keyframes: {
         fadeIn: {
           "0%": { opacity: 0 },
+          "25%": { opacity: 0.25 },
+          "75%": { opacity: 0.75 },
           "100%": { opacity: 1 },
         },
         fadeOut: {
@@ -18,8 +20,8 @@ export default {
         },
       },
       animation: {
-        fadeIn: "fadeIn 0.5s ease-out forwards",
-        fadeOut: "fadeOut 0.5s ease-out forwards",
+        fadeIn: "fadeIn 0.2s ease-out",
+        fadeOut: "fadeOut 0.2s ease-out forwards",
       },
     },
   },
@@ -30,4 +32,4 @@ export default {
       tooltips: true,
     }),
   ],
-};
+}

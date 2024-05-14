@@ -2,10 +2,10 @@ import { Component, For, Show, createEffect, createSignal } from "solid-js"
 import { ImBooks } from "solid-icons/im"
 import { Question, Round, Theme } from "../types"
 import FaSolidGamepad from "../icons/Gamepad"
-import FaSolidUsers from "../icons/UsersIcon"
+import { FaSolidUsers } from "solid-icons/fa"
 import { RiSystemDeleteBin2Fill } from "solid-icons/ri"
 import { useStore } from "../context/store"
-import { useNavigate } from "@solidjs/router"
+import { useNavigate, useParams } from "@solidjs/router"
 const defaultQa: Record<number, Question> = {
   100: { question: "", answer: "" } as Question,
   200: { question: "", answer: "" } as Question,
@@ -16,15 +16,21 @@ const defaultQa: Record<number, Question> = {
 
 const CreateRound: Component = () => {
   const [store, { setGameEvent }] = useStore()
+  const params = useParams()
+  const editingRound = () => {
+    if (params.id) {
+      return store.gameEvent.rounds?.find((r) => r.id === +params.id)
+    }
+  }
   const navigate = useNavigate()
-  const [roundName, setRoundName] = createSignal<Round["name"]>("")
+  const [roundName, setRoundName] = createSignal<Round["name"]>(editingRound()?.name || "")
   const [themeName, setThemeName] = createSignal<Theme["name"]>("")
-  const [players, setPlayers] = createSignal<Round["players"]>(store.gameEvent.players)
+  const [players, setPlayers] = createSignal<Round["players"]>(editingRound()?.players || store.gameEvent.players)
   const [questionsAnswers, setQuestionAnswers] = createSignal<Record<number, Question>>(
     JSON.parse(JSON.stringify(defaultQa))
   )
   const [editingTheme, setEditingTheme] = createSignal<Theme>()
-  const [themes, setThemes] = createSignal<Theme[]>([])
+  const [themes, setThemes] = createSignal<Theme[]>(JSON.parse(JSON.stringify(editingRound()?.themes || [])) || [])
 
   const selectEditingTheme = (theme: Theme) => {
     setEditingTheme(theme)
@@ -76,8 +82,23 @@ const CreateRound: Component = () => {
 
   const saveRound = () => {
     const rounds = [...(store.gameEvent.rounds || [])]
-    const round: Round = { date: Date.now(), id: Date.now(), name: roundName(), players: players(), themes: themes() }
-    rounds.push(round)
+    const currentRound: Round = {
+      date: Date.now(),
+      id: Date.now(),
+      name: roundName(),
+      players: players(),
+      themes: themes(),
+    }
+
+    if (!editingRound()) {
+      rounds.push(currentRound)
+    } else {
+      const index = rounds.findIndex((r) => r.id === editingRound()!.id)
+
+      if (index >= 0) {
+        rounds[index] = { ...editingRound()!, name: roundName(), players: players(), themes: themes() }
+      }
+    }
 
     setGameEvent({ ...store.gameEvent, rounds })
     navigate("/overview_event")
@@ -85,6 +106,7 @@ const CreateRound: Component = () => {
     reset()
     setRoundName("")
   }
+
   return (
     <div>
       <h1 class="dark:text-white mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl text-center xss:pt-5 md:pt-28">

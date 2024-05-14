@@ -3,9 +3,13 @@ import { Component, For, Show, createSignal } from "solid-js"
 import { useStore } from "../context/store"
 import IoPersonRemove from "../icons/UserRemove"
 import { useNavigate } from "@solidjs/router"
-import FaSolidUsers from "../icons/UsersIcon"
+import { FaSolidUsers } from "solid-icons/fa"
 import { RiSystemDeleteBin2Fill } from "solid-icons/ri"
 import { Player, Round } from "../types"
+import { DateTime } from "luxon"
+import { SiApachespark } from "solid-icons/si"
+import { TbConfetti } from "solid-icons/tb"
+import { AiFillEdit } from "solid-icons/ai"
 
 const EmptyRounds: Component = () => {
   const navigate = useNavigate()
@@ -26,9 +30,20 @@ const EmptyRounds: Component = () => {
 }
 
 const OverviewEvent: Component = () => {
-  const [store] = useStore()
+  const [store, { setGameEvent }] = useStore()
+  const navigate = useNavigate()
   const [selectedUser, setSelecteduser] = createSignal<Player>()
   const [selectedRound, setSelectedRound] = createSignal<Round>()
+
+  const editRound = () => {
+    navigate(`/edit_round/${selectedRound()?.id}`)
+  }
+
+  const removeRound = () => {
+    const newRounds = store.gameEvent.rounds?.filter((r) => r.id !== selectedRound()?.id)
+    setGameEvent({ ...store.gameEvent, rounds: newRounds })
+    setSelectedRound()
+  }
 
   return (
     <div>
@@ -38,7 +53,7 @@ const OverviewEvent: Component = () => {
       <div class="flex justify-between xss:flex-col md:flex-row md:w-[80%] mx-auto mt-10">
         <div class="flex flex-col justify-center md:w-[45%]">
           <h6 class="text-lg font-bold dark:text-white md:text-lg flex items-center">
-            <FaSolidUsers />
+            <FaSolidUsers class="text-blue-300" />
             <span class="ml-2">Players:</span>
           </h6>
           <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
@@ -52,15 +67,31 @@ const OverviewEvent: Component = () => {
                         setSelecteduser(selectedUser() ? undefined : player)
                       }}
                     >
-                      <span>
-                        {i() + 1}. {player.name}
-                      </span>
+                      <div class="flex items-center">
+                        <span>
+                          <span
+                            classList={{
+                              "text-green-500": i() == 0,
+                              "text-yellow-600": i() == 1,
+                              "text-orange-300": i() == 2,
+                              "text-red-300": i() == 3,
+                              "text-red-500": i() == 4,
+                            }}
+                          >
+                            {i() + 1}.
+                          </span>{" "}
+                          {player.name}
+                        </span>
+                        <Show when={i() === 0}>
+                          <TbConfetti class="text-yellow-700 text-xl mb-1 ml-2" />
+                        </Show>
+                      </div>
                       <p class="text-md text-gray-500 truncate dark:text-gray-400 mr-4">{player.points}</p>
                     </span>
                     <Show when={selectedUser()?.id == player.id}>
                       <button
                         type="button"
-                        class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center mb-2"
+                        class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center ml-2 animate-fadeIn"
                       >
                         <IoPersonRemove class="cursor-pointer text-sm" />
                       </button>
@@ -71,26 +102,40 @@ const OverviewEvent: Component = () => {
             </For>
           </ol>
         </div>
-        <div class="flex flex-col justify-center md:w-[45%] xss:mt-10 md:mt-0">
+        <div class="flex flex-col justify-start md:w-[45%] xss:mt-10 md:mt-0">
           <Show when={store.gameEvent.rounds && store.gameEvent.rounds?.length > 0} fallback={<EmptyRounds />}>
-            <h6 class="text-lg font-bold dark:text-white md:text-lg">Rounds:</h6>
-            <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400">
+            <h6 class="text-lg font-bold dark:text-white md:text-lg flex items-center">
+              <SiApachespark class="text-yellow-400" />
+              <span class="ml-2">Rounds:</span>
+            </h6>
+            <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
               <For each={store.gameEvent.rounds}>
                 {(round, i) => {
                   return (
                     <li class="w-full flex items-center justify-between text-red-600 animate-fadeIn duration-100">
-                      <span
-                        class="font-medium text-gray-900 dark:text-white  dark:hover:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer p-2 rounded-md"
+                      <div
+                        class="flex justify-between font-medium text-gray-900 dark:text-white dark:hover:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer p-2 rounded-md w-full"
                         onclick={() => {
-                          setSelectedRound(selectedUser() ? undefined : round)
+                          setSelectedRound(selectedRound() ? undefined : round)
                         }}
                       >
-                        {round.name}
-                      </span>
-                      <Show when={selectedUser()?.id == round.id}>
+                        <span>{round.name}</span>
+                        <span class="text-sm text-gray-600">
+                          {DateTime.fromMillis(round.date).toLocaleString({}, { locale: "cs-CZ" })}
+                        </span>
+                      </div>
+                      <Show when={selectedRound()?.id == round.id}>
                         <button
                           type="button"
-                          class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center mb-2"
+                          class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center ml-2 animate-fadeIn"
+                          onclick={editRound}
+                        >
+                          <AiFillEdit class="cursor-pointer text-sm" />
+                        </button>
+                        <button
+                          type="button"
+                          class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm xss:px-3 xss:py-1.5 md:px-4 md:py-2.5 text-center ml-2 animate-fadeIn"
+                          onclick={removeRound}
                         >
                           <RiSystemDeleteBin2Fill />
                         </button>

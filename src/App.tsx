@@ -17,6 +17,7 @@ const App: Component = () => {
           <Route path="/create_event" component={CreateEvent} />
           <Route path="/overview_event" component={OverviewEvent} />
           <Route path="/create_round" component={CreateRound} />
+          <Route path="/edit_round/:id" component={CreateRound} />
         </Router>
       </GameStateContextProvider>
     </div>

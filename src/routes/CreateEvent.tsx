@@ -1,6 +1,6 @@
 import { Component, For, Show, createSignal } from "solid-js"
 import SiNamecheap from "../icons/NameIcon"
-import FaSolidUsers from "../icons/UsersIcon"
+import { FaSolidUsers } from "solid-icons/fa"
 import IoPersonAdd from "../icons/UserAdd"
 import IoPersonRemove from "../icons/UserRemove"
 import { useStore } from "../context/store"
