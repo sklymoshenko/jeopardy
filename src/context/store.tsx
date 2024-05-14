@@ -49,7 +49,7 @@ const defaultState = (): GameContextState => {
           isFinished: false,
           date: 1715703984460,
           id: 1715703984460,
-          name: "asdasdasd",
+          name: "Round 1",
           players: [
             {
               name: "Gregor",
@@ -80,7 +80,43 @@ const defaultState = (): GameContextState => {
           themes: [
             {
               id: 1715703983930,
-              name: "asdasdasd",
+              name: "Kisses 101",
+              questions: [
+                {
+                  id: 1,
+                  question: "asd",
+                  answer: "asd",
+                  points: 100,
+                },
+                {
+                  id: 2,
+                  question: "asd",
+                  answer: "asd",
+                  points: 200,
+                },
+                {
+                  id: 3,
+                  question: "asd",
+                  answer: "asd",
+                  points: 300,
+                },
+                {
+                  id: 4,
+                  question: "asd",
+                  answer: "asd",
+                  points: 400,
+                },
+                {
+                  id: 5,
+                  question: "asd",
+                  answer: "asd",
+                  points: 500,
+                },
+              ],
+            },
+            {
+              id: 1715703983931,
+              name: "Kisses 102",
               questions: [
                 {
                   id: 1,

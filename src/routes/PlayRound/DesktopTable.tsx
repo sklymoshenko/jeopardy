@@ -18,8 +18,8 @@ const DesktopTable: Component<TableProps> = (props) => {
             {(theme) => {
               return (
                 <tr>
-                  <td class="p-4">
-                    <span class="font-bold text-xl">{theme.name}</span>
+                  <td class="p-4 max-w-44">
+                    <span class="font-bold text-xl text-ellipsis">{theme.name}</span>
                   </td>
                   <For each={theme.questions}>
                     {(question, j) => {
