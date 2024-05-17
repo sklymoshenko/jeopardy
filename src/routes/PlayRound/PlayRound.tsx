@@ -1,7 +1,7 @@
-import { useParams } from "@solidjs/router"
-import { Component, For, Show, createSignal, onMount } from "solid-js"
+import { useNavigate, useParams } from "@solidjs/router"
+import { Component, For, Show, createMemo, createSignal, onMount } from "solid-js"
 import { useStore } from "../../context/store"
-import { Player, Question, Round, Theme } from "../../types"
+import { GameEvent, Player, Question, Round, Theme } from "../../types"
 
 import { Modal } from "flowbite"
 import type { ModalOptions, ModalInterface } from "flowbite"
@@ -9,17 +9,27 @@ import type { InstanceOptions } from "flowbite"
 import DesktopTable from "./DesktopTable"
 import MobileCards from "./MobileCards"
 import QuestionModal from "./QuestionModal"
-import { FaSolidUsers } from "solid-icons/fa"
-import { BsBalloonHeartFill } from "solid-icons/bs"
-import { FaSolidMedal } from "solid-icons/fa"
 import PlayersTurns from "./PlayersTurns"
+
+const RoundKey = "playing_round"
 
 type Column = { id: string; label: string }
 
 const PlayRound: Component = () => {
   const [store, { setGameEvent }] = useStore()
+  const navigate = useNavigate()
   const [questionModal, setQuestionModal] = createSignal<ModalInterface>()
   const params = useParams()
+
+  const getSavedRound = (): Round | undefined => {
+    const item = localStorage.getItem(RoundKey)
+
+    if (item) {
+      const round: Round = JSON.parse(item)
+
+      return round
+    }
+  }
 
   onMount(() => {
     const $modalElement = document.querySelector<HTMLElement>("#modalEl")!
@@ -42,9 +52,19 @@ const PlayRound: Component = () => {
     setQuestionModal(modal)
   })
 
-  const playingRound = () => {
+  const playingRound = (): Round | undefined => {
+    const storedRound = getSavedRound()
+
+    if (storedRound) {
+      return storedRound
+    }
+
     if (params.id) {
-      return store.gameEvent.rounds?.find((r) => r.id === +params.id)
+      let storeRound = store.gameEvent.rounds?.find((r) => r.id === +params.id)
+      if (storeRound) {
+        storeRound.players = storeRound.players.map((p: Player) => ({ ...p, points: 0 }))
+        return JSON.parse(JSON.stringify(storeRound))
+      }
     }
   }
 
@@ -72,12 +92,10 @@ const PlayRound: Component = () => {
     return columns
   }
 
-  const [themes, setThemes] = createSignal<Round["themes"]>(JSON.parse(JSON.stringify(playingRound()?.themes)) || [])
+  const [themes, setThemes] = createSignal<Round["themes"]>(playingRound()?.themes || [])
   const [selectedQuestion, setSelectedQuestion] = createSignal<{ themeId: Theme["id"]; questionId: Question["id"] }>()
   const [revealAnswer, setReavealAnswer] = createSignal(false)
-  const [roundPlayers, setRoundPlayers] = createSignal<Round["players"]>(
-    JSON.parse(JSON.stringify(playingRound()?.players)).map((p: Player) => ({ ...p, points: 0 })) || []
-  )
+  const [roundPlayers, setRoundPlayers] = createSignal<Round["players"]>(playingRound()?.players || [])
 
   const [playerTurn, setPlayerTurn] = createSignal<Round["players"][number]>(
     roundPlayers()[Math.floor(Math.random() * roundPlayers().length)]
@@ -115,6 +133,24 @@ const PlayRound: Component = () => {
     }
 
     return { title: "Unknown", question: "Unknown", answer: "Unknown" }
+  }
+
+  const saveToLocalStorage = () => {
+    localStorage.setItem(RoundKey, JSON.stringify({ ...playingRound(), players: roundPlayers(), themes: themes() }))
+  }
+
+  const finishRound = () => {
+    const newRound = JSON.parse(
+      JSON.stringify({ ...playingRound(), players: roundPlayers(), themes: themes(), isFinished: true } as Round)
+    )
+    const roundIndex = store.gameEvent.rounds!.findIndex((r) => r.id === newRound.id)
+
+    if (roundIndex >= 0) {
+      const newGameEvent: GameEvent = JSON.parse(JSON.stringify(store.gameEvent))
+      newGameEvent.rounds![roundIndex] = newRound
+      setGameEvent(newGameEvent)
+      navigate(`/overview_event`)
+    }
   }
 
   const answer = (isAccepted: boolean) => {
@@ -195,6 +231,22 @@ const PlayRound: Component = () => {
         roundPlayers={roundPlayers()}
         winningPlayer={winningPlayer()}
       />
+      <div class="flex justify-between lg:justify-center my-12">
+        <button
+          type="button"
+          class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center xss:w-[45%] lg:w-[20%] md:w-[33%] lg:mr-4"
+          onclick={saveToLocalStorage}
+        >
+          Save Round
+        </button>
+        <button
+          type="button"
+          class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center xss:w-[45%] lg:w-[20%] md:w-[33%]"
+          onclick={finishRound}
+        >
+          Finish Round
+        </button>
+      </div>
       <QuestionModal
         acceptAnswer={acceptAnswer}
         incorrectAnswer={incorrectAnswer}

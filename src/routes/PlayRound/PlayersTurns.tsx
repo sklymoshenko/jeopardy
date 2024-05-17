@@ -1,6 +1,6 @@
 import { BsBalloonHeartFill } from "solid-icons/bs"
 import { FaSolidUsers, FaSolidMedal } from "solid-icons/fa"
-import { Component, For, Show } from "solid-js"
+import { Component, For, Show, createEffect } from "solid-js"
 import { Round } from "../../types"
 
 type PlayersTurnsProps = {
