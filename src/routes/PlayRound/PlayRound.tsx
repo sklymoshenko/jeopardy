@@ -1,14 +1,18 @@
 import { useParams } from "@solidjs/router"
 import { Component, For, Show, createSignal, onMount } from "solid-js"
 import { useStore } from "../../context/store"
-import { Question, Round, Theme } from "../../types"
-import { OcQuestion2 } from "solid-icons/oc"
+import { Player, Question, Round, Theme } from "../../types"
 
 import { Modal } from "flowbite"
 import type { ModalOptions, ModalInterface } from "flowbite"
 import type { InstanceOptions } from "flowbite"
 import DesktopTable from "./DesktopTable"
 import MobileCards from "./MobileCards"
+import QuestionModal from "./QuestionModal"
+import { FaSolidUsers } from "solid-icons/fa"
+import { BsBalloonHeartFill } from "solid-icons/bs"
+import { FaSolidMedal } from "solid-icons/fa"
+import PlayersTurns from "./PlayersTurns"
 
 type Column = { id: string; label: string }
 
@@ -59,13 +63,8 @@ const PlayRound: Component = () => {
     const columns: Column[] = [{ id: "names", label: "" }]
 
     for (let i = 0; i < largestTheme.questions.length; i++) {
-      const column: Column = { id: (i + 1).toString(), label: "" }
-      if (i <= 3) {
-        column.label = column.id + "00"
-      } else {
-        column.id = "10"
-        column.label = "1000"
-      }
+      const val = largestTheme.questions[i].points.toString()
+      const column: Column = { id: val, label: val }
 
       columns.push(column)
     }
@@ -76,6 +75,13 @@ const PlayRound: Component = () => {
   const [themes, setThemes] = createSignal<Round["themes"]>(JSON.parse(JSON.stringify(playingRound()?.themes)) || [])
   const [selectedQuestion, setSelectedQuestion] = createSignal<{ themeId: Theme["id"]; questionId: Question["id"] }>()
   const [revealAnswer, setReavealAnswer] = createSignal(false)
+  const [roundPlayers, setRoundPlayers] = createSignal<Round["players"]>(
+    JSON.parse(JSON.stringify(playingRound()?.players)).map((p: Player) => ({ ...p, points: 0 })) || []
+  )
+
+  const [playerTurn, setPlayerTurn] = createSignal<Round["players"][number]>(
+    roundPlayers()[Math.floor(Math.random() * roundPlayers().length)]
+  )
 
   const selectQuestion = (theme: Theme["id"], question: Question["id"]) => {
     setSelectedQuestion({ themeId: theme, questionId: question })
@@ -125,16 +131,53 @@ const PlayRound: Component = () => {
     }
   }
 
-  const acceptAnswer = () => {
-    answer(true)
+  const moveToNextPlayer = () => {
+    const currIndex = roundPlayers().findIndex((p) => p.id === playerTurn().id)
+
+    if (currIndex >= 0) {
+      if (currIndex + 1 > roundPlayers().length - 1) {
+        setPlayerTurn(roundPlayers()[0])
+      } else {
+        setPlayerTurn(roundPlayers()[currIndex + 1])
+      }
+
+      return currIndex
+    }
+
+    return undefined
+  }
+
+  const winningPlayer = () => {
+    return [...roundPlayers()].sort((a, b) => b.points - a.points)[0]
+  }
+
+  const resetPlayerRoundData = () => {
+    const currIndex = moveToNextPlayer()
+
+    if (currIndex == undefined) {
+      return
+    }
+
+    const newPlayers: Round["players"] = JSON.parse(JSON.stringify(roundPlayers()))
+    const { themeIndex, questionIndex } = selectedToAnswer()
+    if (themeIndex < 0) return
+
+    const question = themes()[themeIndex].questions[questionIndex]
+    newPlayers[currIndex].points += question.isAnswered ? question.points : -question.points
+    setRoundPlayers(newPlayers)
+
     questionModal()?.toggle()
     setSelectedQuestion()
   }
 
+  const acceptAnswer = () => {
+    answer(true)
+    resetPlayerRoundData()
+  }
+
   const incorrectAnswer = () => {
     answer(false)
-    questionModal()?.toggle()
-    setSelectedQuestion()
+    resetPlayerRoundData()
   }
 
   return (
@@ -146,71 +189,20 @@ const PlayRound: Component = () => {
         <DesktopTable columns={columns()} themes={themes()} onQuestionClick={selectQuestion} />
         <MobileCards columns={columns()} themes={themes()} onQuestionClick={selectQuestion} />
       </Show>
-      <div
-        id="modalEl"
-        tabindex="-1"
-        aria-hidden="true"
-        class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
-      >
-        <div class="relative max-h-full w-full max-w-2xl">
-          <div class="relative rounded-lg bg-white shadow dark:bg-gray-700">
-            <div class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-600">
-              <h3 class="text-xl font-semibold text-gray-900 dark:text-white lg:text-2xl">{modalData()?.title}</h3>
-              <button
-                type="button"
-                class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-                onclick={() => questionModal()?.toggle()}
-              >
-                <svg
-                  class="h-3 w-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-                <span class="sr-only">Close modal</span>
-              </button>
-            </div>
-
-            <div class="space-y-6 p-6">
-              <span>Question:</span>
-              <p class="text-base leading-relaxed text-white">{modalData()?.question}</p>
-              <p
-                class="text-sm leading-relaxed text-gray-500 dark:text-gray-400 blur-md cursor-pointer"
-                classList={{ "blur-none": revealAnswer() }}
-                onclick={() => setReavealAnswer((prev) => !prev)}
-              >
-                {modalData()?.answer}
-              </p>
-            </div>
-
-            <div class="flex items-center space-x-2 rtl:space-x-reverse rounded-b border-t border-gray-200 p-6 dark:border-gray-600 justify-end">
-              <button
-                type="button"
-                class="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-                onclick={acceptAnswer}
-              >
-                Accept
-              </button>
-              <button
-                type="button"
-                class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-                onclick={incorrectAnswer}
-              >
-                No Way
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PlayersTurns
+        onPlayerClick={setPlayerTurn}
+        playerTurn={playerTurn()}
+        roundPlayers={roundPlayers()}
+        winningPlayer={winningPlayer()}
+      />
+      <QuestionModal
+        acceptAnswer={acceptAnswer}
+        incorrectAnswer={incorrectAnswer}
+        modalData={modalData()}
+        onAnswerClick={() => setReavealAnswer((prev) => !prev)}
+        revealAnswer={revealAnswer()}
+        onCloseClick={() => questionModal()?.toggle()}
+      />
     </div>
   )
 }
