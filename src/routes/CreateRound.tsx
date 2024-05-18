@@ -18,14 +18,16 @@ const CreateRound: Component = () => {
   const [store, { setGameEvent }] = useStore()
   const params = useParams()
   const editingRound = () => {
-    if (params.id) {
+    if (params.id && store.gameEvent) {
       return store.gameEvent.rounds?.find((r) => r.id === +params.id)
     }
   }
   const navigate = useNavigate()
   const [roundName, setRoundName] = createSignal<Round["name"]>(editingRound()?.name || "")
   const [themeName, setThemeName] = createSignal<Theme["name"]>("")
-  const [players, setPlayers] = createSignal<Round["players"]>(editingRound()?.players || store.gameEvent.players)
+  const [players, setPlayers] = createSignal<Round["players"]>(
+    editingRound()?.players || store.gameEvent?.players || []
+  )
   const [questionsAnswers, setQuestionAnswers] = createSignal<Record<number, Question>>(
     JSON.parse(JSON.stringify(defaultQa))
   )
@@ -81,6 +83,10 @@ const CreateRound: Component = () => {
   }
 
   const saveRound = () => {
+    if (!store.gameEvent) {
+      return
+    }
+
     const rounds = [...(store.gameEvent.rounds || [])]
     const currentRound: Round = {
       date: Date.now(),
@@ -145,7 +151,7 @@ const CreateRound: Component = () => {
             <span class="ml-2">Players:</span>
           </h6>
           <ol class="w-full space-y-2 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
-            <For each={store.gameEvent.players}>
+            <For each={store.gameEvent?.players}>
               {(player, i) => {
                 return (
                   <li class="w-full flex items-center justify-between text-red-600 animate-fadeIn duration-100 px-4">

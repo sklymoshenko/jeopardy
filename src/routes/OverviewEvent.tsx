@@ -41,6 +41,7 @@ const OverviewEvent: Component = () => {
   }
 
   const removeRound = () => {
+    if (!store.gameEvent) return
     const newRounds = store.gameEvent.rounds?.filter((r) => r.id !== selectedRound()?.id)
     setGameEvent({ ...store.gameEvent, rounds: newRounds })
     setSelectedRound()
@@ -53,7 +54,7 @@ const OverviewEvent: Component = () => {
   return (
     <div>
       <h1 class="dark:text-white mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl text-center xss:pt-5 md:pt-28">
-        {store.gameEvent.name || "Unknown"}
+        {store.gameEvent?.name || "Unknown"}
       </h1>
       <div class="flex justify-between xss:flex-col md:flex-row md:w-[80%] mx-auto mt-10">
         <div class="flex flex-col justify-center md:w-[45%]">
@@ -62,7 +63,7 @@ const OverviewEvent: Component = () => {
             <span class="ml-2">Players:</span>
           </h6>
           <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
-            <For each={store.gameEvent.players}>
+            <For each={store.gameEvent?.players}>
               {(player, i) => {
                 return (
                   <li class="w-full flex items-center justify-between text-red-600 animate-fadeIn duration-100">
@@ -108,13 +109,13 @@ const OverviewEvent: Component = () => {
           </ol>
         </div>
         <div class="flex flex-col justify-start md:w-[45%] xss:mt-10 md:mt-0">
-          <Show when={store.gameEvent.rounds && store.gameEvent.rounds?.length > 0} fallback={<EmptyRounds />}>
+          <Show when={store.gameEvent?.rounds && store.gameEvent?.rounds?.length > 0} fallback={<EmptyRounds />}>
             <h6 class="text-lg font-bold dark:text-white md:text-lg flex items-center">
               <SiApachespark class="text-yellow-400" />
               <span class="ml-2">Rounds:</span>
             </h6>
             <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
-              <For each={store.gameEvent.rounds}>
+              <For each={store.gameEvent?.rounds}>
                 {(round, i) => {
                   return (
                     <li class="w-full flex items-center justify-between text-red-600 animate-fadeIn duration-100">
