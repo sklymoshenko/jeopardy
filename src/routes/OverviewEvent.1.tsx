@@ -1,5 +1,4 @@
 import { Component, For, Show, createResource, createSignal } from "solid-js"
-
 import { useStore } from "../context/store"
 import IoPersonRemove from "../icons/UserRemove"
 import { useNavigate, useParams } from "@solidjs/router"
@@ -12,51 +11,24 @@ import { TbConfetti } from "solid-icons/tb"
 import { AiFillEdit } from "solid-icons/ai"
 import { FaSolidPlay } from "solid-icons/fa"
 import { apiGet } from "../api"
-import { ApiGameEvent } from "../api/types"
+import { EmptyRounds } from "./OverviewEvent"
 
-const EmptyRounds: Component = () => {
-  const navigate = useNavigate()
-
-  return (
-    <div class="flex flex-col text-center w-full h-50">
-      <h6 class="text-lg font-bold dark:text-white">There are no rounds in this game so far.</h6>
-      <p class="text-md text-gray-500 truncate dark:text-gray-400">You can fix it by creating a first one.</p>
-      <button
-        type="button"
-        class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-6"
-        onclick={() => navigate("/create_round")}
-      >
-        Create Round
-      </button>
-    </div>
-  )
-}
-
-const OverviewEvent: Component = () => {
+export const OverviewEvent: Component = () => {
   const params = useParams()
   const [store, { setGameEvent }] = useStore()
   const navigate = useNavigate()
   const [selectedUser, setSelecteduser] = createSignal<Player>()
   const [selectedRound, setSelectedRound] = createSignal<Round>()
 
-  const [currGame] = createResource<GameEvent, string, false>(params.id, async (gameId: string) => {
-    if (store.gameEvent) {
-      return store.gameEvent
+  const [currGame] = createResource<GameEvent>(async () => {
+    const comapnies = await apiGet()
+
+    if (comapnies?.data && Array.isArray(comapnies.data)) {
+      setCompanies(comapnies.data)
+      return comapnies.data.filter((c) => c.id !== state.company.id)
     }
 
-    const { data, error } = await apiGet<ApiGameEvent>(`games/${gameId}`)
-    if (data) {
-      const gameEvent: GameEvent = {
-        id: data.gameInfo.id!,
-        name: data.gameInfo.name!,
-        players: data.players as Player[],
-      }
-
-      setGameEvent(gameEvent)
-      return gameEvent
-    }
-
-    return {} as GameEvent
+    return []
   })
 
   const editRound = () => {
@@ -64,9 +36,9 @@ const OverviewEvent: Component = () => {
   }
 
   const removeRound = () => {
-    if (!currGame()) return
-    const newRounds = currGame()!.rounds?.filter((r) => r.id !== selectedRound()?.id)
-    setGameEvent({ ...currGame()!, rounds: newRounds })
+    if (!store.gameEvent) return
+    const newRounds = store.gameEvent.rounds?.filter((r) => r.id !== selectedRound()?.id)
+    setGameEvent({ ...store.gameEvent, rounds: newRounds })
     setSelectedRound()
   }
 
@@ -77,7 +49,7 @@ const OverviewEvent: Component = () => {
   return (
     <div>
       <h1 class="dark:text-white mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-3xl lg:text-4xl text-center xss:pt-5 md:pt-28">
-        {currGame()?.name || "Unknown"}
+        {store.gameEvent?.name || "Unknown"}
       </h1>
       <div class="flex justify-between xss:flex-col md:flex-row md:w-[80%] mx-auto mt-10">
         <div class="flex flex-col justify-center md:w-[45%]">
@@ -86,7 +58,7 @@ const OverviewEvent: Component = () => {
             <span class="ml-2">Players:</span>
           </h6>
           <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
-            <For each={currGame()?.players}>
+            <For each={store.gameEvent?.players}>
               {(player, i) => {
                 return (
                   <li class="w-full flex items-center justify-between text-red-600 animate-fadeIn duration-100">
@@ -132,13 +104,13 @@ const OverviewEvent: Component = () => {
           </ol>
         </div>
         <div class="flex flex-col justify-start md:w-[45%] xss:mt-10 md:mt-0">
-          <Show when={currGame()?.rounds && currGame()!.rounds!.length > 0} fallback={<EmptyRounds />}>
+          <Show when={store.gameEvent?.rounds && store.gameEvent?.rounds?.length > 0} fallback={<EmptyRounds />}>
             <h6 class="text-lg font-bold dark:text-white md:text-lg flex items-center">
               <SiApachespark class="text-yellow-400" />
               <span class="ml-2">Rounds:</span>
             </h6>
             <ol class="w-full space-y-1 text-gray-500 list-decimal list-inside dark:text-gray-400 mt-6">
-              <For each={currGame()?.rounds}>
+              <For each={store.gameEvent?.rounds}>
                 {(round, i) => {
                   return (
                     <li class="w-full flex items-center justify-between text-red-600 animate-fadeIn duration-100">
@@ -189,5 +161,3 @@ const OverviewEvent: Component = () => {
     </div>
   )
 }
-
-export default OverviewEvent

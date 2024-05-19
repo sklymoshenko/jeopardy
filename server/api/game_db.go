@@ -49,6 +49,20 @@ func getGameByName(name string) (models.Game, error) {
 	return game, nil
 }
 
+func getGameById(id int) (models.Game, error) {
+	querySQL := `SELECT game_id, game_name, created_at FROM Games WHERE game_id = ?`
+	row := DB.QueryRow(querySQL, id)
+	var game models.Game
+
+	err := row.Scan(&game.ID, &game.Name, &game.CreatedAt)
+
+	if err != nil {
+		return models.Game{}, err
+	}
+
+	return game, nil
+}
+
 func dbCreateGame(newGame models.Game) (models.Game, error) {
 	insertSQL := `INSERT INTO Games (game_id, game_name) VALUES (?, ?)`
 	_, err := DB.Exec(insertSQL, newGame.ID, newGame.Name)

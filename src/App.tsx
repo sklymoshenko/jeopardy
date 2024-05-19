@@ -16,7 +16,7 @@ const App: Component = () => {
         <Router>
           <Route path="/" component={Home} />
           <Route path="/create_event" component={CreateEvent} />
-          <Route path="/overview_event" component={OverviewEvent} />
+          <Route path="/overview_event/:id" component={OverviewEvent} />
           <Route path="/create_round" component={CreateRound} />
           <Route path="/edit_round/:id" component={CreateRound} />
           <Route path="/play_round/:id" component={PlayRound} />

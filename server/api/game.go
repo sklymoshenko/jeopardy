@@ -4,6 +4,7 @@ import (
 	"jeopardy/models"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,13 +21,13 @@ func getGames(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": games})
 }
 
-type NewGameBody struct {
-	NewGame models.Game     `json:"gameInfo"`
-	Players []models.Player `json:"players"`
+type Game struct {
+	GameInfo models.Game     `json:"gameInfo"`
+	Players  []models.Player `json:"players"`
 }
 
 func createGame(c *gin.Context) {
-	var newGameBody NewGameBody
+	var newGameBody Game
 
 	// Bind the JSON payload to the newGame struct
 	if err := c.ShouldBindJSON(&newGameBody); err != nil {
@@ -35,7 +36,9 @@ func createGame(c *gin.Context) {
 		return
 	}
 
-	game, err := dbCreateGame(newGameBody.NewGame)
+	log.Println("Creating game name:", newGameBody.GameInfo.Name)
+
+	game, err := dbCreateGame(newGameBody.GameInfo)
 
 	if err != nil {
 		log.Println("Error while db call 'create game':", err)
@@ -43,7 +46,7 @@ func createGame(c *gin.Context) {
 		return
 	}
 
-	err = createPlayer(newGameBody.Players, newGameBody.NewGame.ID)
+	err = createPlayer(newGameBody.Players, newGameBody.GameInfo.ID)
 
 	if err != nil {
 		log.Println("Error while db call 'create player':", err)
@@ -54,11 +57,42 @@ func createGame(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": game})
 }
 
+func gameById(c *gin.Context) {
+	gameId := c.Param("id")
+
+	gameIdInt, err := strconv.Atoi(gameId)
+
+	if err != nil {
+		log.Println("Invalid parametr for game id:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving game by id"})
+		return
+	}
+
+	game, err := getGameById(gameIdInt)
+
+	if err != nil {
+		log.Println("Error while db call 'get game by id'", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving game by id"})
+		return
+	}
+
+	players, err := getPlayersByGameId(gameIdInt)
+
+	if err != nil {
+		log.Println("Error while db call 'get players by game id'", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving game by id"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": Game{GameInfo: game, Players: players}})
+}
+
 func gameRouter(g *gin.Engine) {
 	router := g.Group("/games")
 
 	{
 		router.GET("/", getGames)
+		router.GET("/:id/", gameById)
 		router.POST("/", createGame)
 	}
 }

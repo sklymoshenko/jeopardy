@@ -19,6 +19,39 @@ func getPlayerById(id int) (models.Player, error) {
 	return player, nil
 }
 
+func getPlayersByGameId(gameId int) ([]models.Player, error) {
+	players := make([]models.Player, 0)
+	singlePlayer := models.Player{}
+
+	querySQL := `
+		SELECT p.player_id, p.player_name, p.points, p.created_at
+		FROM Players p
+		JOIN PlayerGames pg ON p.player_id = pg.player_id
+		WHERE pg.game_id = 1;
+	`
+
+	rows, err := DB.Query(querySQL, gameId)
+
+	if err != nil {
+		return players, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&singlePlayer.ID, &singlePlayer.Name, &singlePlayer.Points, &singlePlayer.CreatedAt)
+
+		if err != nil {
+			return make([]models.Player, 0), err
+		}
+
+		players = append(players, singlePlayer)
+		singlePlayer = models.Player{}
+	}
+
+	return players, nil
+}
+
 func playerGameRelationQueryBuilder(newPlayers []models.Player, gameId int) (strings.Builder, []interface{}) {
 	var queryBuilder strings.Builder
 	var args []interface{}
