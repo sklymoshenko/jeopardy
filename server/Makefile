@@ -1,7 +1,7 @@
 # Makefile
 
 # Variables
-DB_NAME=jeopardy
+DB_NAME=db/jeopardy.db
 MIGRATIONS_DIR=db/migrations
 DB_DRIVER=sqlite3
 
@@ -19,6 +19,11 @@ test:
 .PHONY: build
 build:
 	go build -o bin/jeopardy
+
+# Build and run the project
+.PHONY: run
+run: build
+	bin/jeopardy
 
 # Create a new migration
 .PHONY: migration

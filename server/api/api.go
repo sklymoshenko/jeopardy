@@ -2,8 +2,10 @@ package api
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Api struct {
@@ -21,14 +23,28 @@ func (a *Api) CreateApi() {
 }
 
 func (a Api) Run() {
+	connectDatabase()
 	a.g.Run()
 }
 
-func (a Api) ConnectDatabase() error {
-	db, err := sql.Open("sqlite3", "./sqlite.db")
+func connectDatabase() error {
+	log.Println("Connecting to db!")
+
+	db, err := sql.Open("sqlite3", "db/jeopardy.db")
+
 	if err != nil {
+		log.Fatalf("Error while establishing connection to db: %v\n", err)
 		return err
 	}
+
+	// Test the connection
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v\n", err)
+		return err
+	}
+
+	log.Println("Connected to the SQLite database successfully!")
 
 	DB = db
 	return nil

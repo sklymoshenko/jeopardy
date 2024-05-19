@@ -9,8 +9,7 @@ CREATE TABLE Players (
 
 CREATE TABLE Games (
   game_id INTEGER PRIMARY KEY,
-  game_name TEXT NOT NULL,
-  game_description TEXT,
+  game_name TEXT NOT NULL UNIQUE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -48,7 +47,7 @@ CREATE TABLE Questions (
   points INTEGER,
   is_answered INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (round_id) REFERENCES Rounds (round_id)
+  FOREIGN KEY (theme_id) REFERENCES Themes (theme_id)
 );
 
 CREATE TABLE RoundPlayers (
@@ -57,7 +56,7 @@ CREATE TABLE RoundPlayers (
   joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (round_id, player_id),
   FOREIGN KEY (round_id) REFERENCES Rounds (round_id),
-  FOREIGN KEY (user_id) REFERENCES Users (user_id)
+  FOREIGN KEY (player_id) REFERENCES Players (player_id)
 );
 
 -- +goose StatementEnd

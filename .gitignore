@@ -27,3 +27,10 @@ gitignore
 # System Files
 .DS_Store
 Thumbs.db
+
+# Ignore the binary files
+server/bin/
+
+# Ignore the database file
+server/db/jeopardy.db
+server/db/-- SQLite.sql
