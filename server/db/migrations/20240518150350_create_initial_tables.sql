@@ -3,7 +3,7 @@
 CREATE TABLE Players (
   player_id INTEGER PRIMARY KEY,
   player_name TEXT NOT NULL UNIQUE,
-  points INTEGER,
+  points INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -20,20 +20,33 @@ func getGames(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": games})
 }
 
+type NewGameBody struct {
+	NewGame models.Game     `json:"gameInfo"`
+	Players []models.Player `json:"players"`
+}
+
 func createGame(c *gin.Context) {
-	var newGame models.Game
+	var newGameBody NewGameBody
 
 	// Bind the JSON payload to the newGame struct
-	if err := c.ShouldBindJSON(&newGame); err != nil {
+	if err := c.ShouldBindJSON(&newGameBody); err != nil {
 		log.Println("Error parsing req body:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	game, err := dbCreateGame(newGame)
+	game, err := dbCreateGame(newGameBody.NewGame)
 
 	if err != nil {
-		log.Println("Error while db call:", err)
+		log.Println("Error while db call 'create game':", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error creating a game"})
+		return
+	}
+
+	err = createPlayer(newGameBody.Players, newGameBody.NewGame.ID)
+
+	if err != nil {
+		log.Println("Error while db call 'create player':", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error creating a game"})
 		return
 	}
