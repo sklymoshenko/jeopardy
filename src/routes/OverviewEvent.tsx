@@ -12,7 +12,7 @@ import { TbConfetti } from "solid-icons/tb"
 import { AiFillEdit } from "solid-icons/ai"
 import { FaSolidPlay } from "solid-icons/fa"
 import { apiGet } from "../api"
-import { ApiGameEvent } from "../api/types"
+import { ApiGetGameEvent } from "../api/types"
 
 const EmptyRounds: Component = () => {
   const navigate = useNavigate()
@@ -44,7 +44,7 @@ const OverviewEvent: Component = () => {
       return store.gameEvent
     }
 
-    const { data, error } = await apiGet<ApiGameEvent>(`games/${gameId}`)
+    const { data, error } = await apiGet<ApiGetGameEvent>(`games/${gameId}`)
     if (data) {
       const gameEvent: GameEvent = {
         id: data.gameInfo.id!,

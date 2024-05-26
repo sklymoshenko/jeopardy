@@ -35,7 +35,7 @@ func dbGetGames() ([]models.Game, error) {
 	return games, nil
 }
 
-func getGameByName(name string) (models.Game, error) {
+func dbGetGameByName(name string) (models.Game, error) {
 	querySQL := `SELECT game_id, game_name, created_at FROM Games WHERE game_name = ?`
 	row := DB.QueryRow(querySQL, name)
 	var game models.Game
@@ -49,7 +49,7 @@ func getGameByName(name string) (models.Game, error) {
 	return game, nil
 }
 
-func getGameById(id int) (models.Game, error) {
+func dbGetGameById(id int) (models.Game, error) {
 	querySQL := `SELECT game_id, game_name, created_at FROM Games WHERE game_id = ?`
 	row := DB.QueryRow(querySQL, id)
 	var game models.Game
@@ -71,5 +71,5 @@ func dbCreateGame(newGame models.Game) (models.Game, error) {
 		return models.Game{}, err
 	}
 
-	return getGameByName(newGame.Name)
+	return dbGetGameByName(newGame.Name)
 }

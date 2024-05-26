@@ -5,9 +5,9 @@ import IoPersonAdd from "../icons/UserAdd"
 import IoPersonRemove from "../icons/UserRemove"
 import { useStore } from "../context/store"
 import { useNavigate } from "@solidjs/router"
-import { GameEvent, Player } from "../types"
+import { Player } from "../types"
 import { apiPost } from "../api"
-import { ApiGameEvent } from "../api/types"
+import { ApiCreateGameEvent } from "../api/types"
 
 const CreateEvent: Component = () => {
   const [, { setGameEvent }] = useStore()
@@ -23,7 +23,7 @@ const CreateEvent: Component = () => {
 
   const createGame = async () => {
     const newEvent = { name: eventName(), players: players(), id: Date.now() }
-    const reqBody: ApiGameEvent = {
+    const reqBody: ApiCreateGameEvent = {
       gameInfo: { id: newEvent.id, name: newEvent.name },
       players: newEvent.players,
     }

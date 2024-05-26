@@ -68,7 +68,7 @@ func gameById(c *gin.Context) {
 		return
 	}
 
-	game, err := getGameById(gameIdInt)
+	game, err := dbGetGameById(gameIdInt)
 
 	if err != nil {
 		log.Println("Error while db call 'get game by id'", err)
@@ -76,7 +76,35 @@ func gameById(c *gin.Context) {
 		return
 	}
 
-	players, err := getPlayersByGameId(gameIdInt)
+	players, err := dbGetPlayersByGameId(gameIdInt)
+
+	if err != nil {
+		log.Println("Error while db call 'get players by game id'", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving game by id"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": Game{GameInfo: game, Players: players}})
+}
+
+func gameByName(c *gin.Context) {
+	gameName := c.Param("name")
+
+	if gameName == "" {
+		log.Println("Invalid parametr for game name")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving game by name"})
+		return
+	}
+
+	game, err := dbGetGameByName(gameName)
+
+	if err != nil {
+		log.Println("Error while db call 'get game by name'", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error retrieving game by name"})
+		return
+	}
+
+	players, err := dbGetPlayersByGameId(game.ID)
 
 	if err != nil {
 		log.Println("Error while db call 'get players by game id'", err)
@@ -93,6 +121,7 @@ func gameRouter(g *gin.Engine) {
 	{
 		router.GET("/", getGames)
 		router.GET("/:id/", gameById)
+		router.GET("/name/:name/", gameByName)
 		router.POST("/", createGame)
 	}
 }

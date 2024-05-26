@@ -18,6 +18,7 @@ func (a *Api) CreateApi() {
 	g := gin.Default()
 
 	gameRouter(g)
+	roundRouter(g)
 
 	a.g = g
 }

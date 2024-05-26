@@ -24,15 +24,15 @@ type Round struct {
 type Theme struct {
 	ID        int    `json:"id"`
 	RoundId   int    `json:"roundId"`
-	Name      string `json:"theme_name"`
+	Name      string `json:"name"`
 	CreatedAt string `json:"createdAt"`
 }
 
 type Question struct {
 	ID           int    `json:"id"`
 	ThemeId      int    `json:"themeId"`
-	QuestionText string `json:"questionText"`
-	AnswerText   string `json:"answerText"`
+	QuestionText string `json:"question"`
+	AnswerText   string `json:"answer"`
 	Points       int    `json:"points"`
 	IsAnswered   int    `json:"isAnswered"`
 	CreatedAt    string `json:"createdAt"`

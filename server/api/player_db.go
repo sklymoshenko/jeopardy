@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func getPlayerById(id int) (models.Player, error) {
+func dbGetPlayerById(id int) (models.Player, error) {
 	querySQL := `SELECT player_id, player_name, created_at, points FROM Players WHERE player_id = ?`
 	row := DB.QueryRow(querySQL, id)
 	var player models.Player
@@ -19,7 +19,7 @@ func getPlayerById(id int) (models.Player, error) {
 	return player, nil
 }
 
-func getPlayersByGameId(gameId int) ([]models.Player, error) {
+func dbGetPlayersByGameId(gameId int) ([]models.Player, error) {
 	players := make([]models.Player, 0)
 	singlePlayer := models.Player{}
 
@@ -27,7 +27,7 @@ func getPlayersByGameId(gameId int) ([]models.Player, error) {
 		SELECT p.player_id, p.player_name, p.points, p.created_at
 		FROM Players p
 		JOIN PlayerGames pg ON p.player_id = pg.player_id
-		WHERE pg.game_id = 1;
+		WHERE pg.game_id = ?;
 	`
 
 	rows, err := DB.Query(querySQL, gameId)

@@ -13,8 +13,10 @@ export type GameContextValue = [
 ]
 
 const defaultState = (): GameContextState => {
+  const gameEvent = localStorage.getItem("game") || undefined
+
   return {
-    gameEvent: undefined,
+    gameEvent: gameEvent ? JSON.parse(gameEvent) : undefined,
   }
 }
 
@@ -37,7 +39,7 @@ export const GameStateContextProvider: ParentComponent<{
   const setGameEvent = (gameEvent: GameEvent) => {
     const players = [...gameEvent.players].sort((a, b) => b.points - a.points)
     const newEvent = { ...gameEvent, players }
-
+    localStorage.setItem("game", JSON.stringify(newEvent))
     setState("gameEvent", newEvent)
   }
 

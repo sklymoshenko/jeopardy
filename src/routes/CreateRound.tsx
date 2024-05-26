@@ -6,6 +6,8 @@ import { FaSolidUsers } from "solid-icons/fa"
 import { RiSystemDeleteBin2Fill } from "solid-icons/ri"
 import { useStore } from "../context/store"
 import { useNavigate, useParams } from "@solidjs/router"
+import { ApiCreateGameRound } from "../api/types"
+import { apiPost } from "../api"
 const defaultQa: Record<number, Question> = {
   100: { question: "", answer: "" } as Question,
   200: { question: "", answer: "" } as Question,
@@ -51,27 +53,34 @@ const CreateRound: Component = () => {
     setQuestionAnswers(JSON.parse(JSON.stringify(defaultQa)))
   }
 
-  const mapQa = () => {
+  const mapQa = (themeId: Theme["id"]) => {
     return Object.keys(questionsAnswers()).map((points) => ({
       ...questionsAnswers()[+points],
       points: +points,
+      themeId,
     }))
   }
+
   const saveTheme = () => {
     if (!editingTheme()) {
-      setThemes((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          name: themeName(),
-          questions: mapQa(),
-        },
-      ])
+      setThemes((prev) => {
+        const id = Date.now()
+
+        return [
+          ...prev,
+          {
+            id,
+            name: themeName(),
+            questions: mapQa(id),
+            roundId: editingRound()?.id || 0,
+          },
+        ]
+      })
 
       reset()
     } else {
       const newTheme = editingTheme()!
-      newTheme.questions = mapQa()
+      newTheme.questions = mapQa(newTheme.id)
 
       const index = themes().findIndex((th) => th.id === newTheme.id)
       const newThemes = [...themes()]
@@ -82,7 +91,8 @@ const CreateRound: Component = () => {
     }
   }
 
-  const saveRound = () => {
+  const saveRound = async () => {
+    debugger
     if (!store.gameEvent) {
       return
     }
@@ -94,6 +104,7 @@ const CreateRound: Component = () => {
       name: roundName(),
       players: players(),
       themes: themes(),
+      gameId: store.gameEvent!.id,
     }
 
     if (!editingRound()) {
@@ -104,6 +115,21 @@ const CreateRound: Component = () => {
       if (index >= 0) {
         rounds[index] = { ...editingRound()!, name: roundName(), players: players(), themes: themes() }
       }
+    }
+
+    if (!editingRound()) {
+      const request: ApiCreateGameRound = {
+        playerIds: players().map((p) => p.id),
+        roundInfo: { ...currentRound, themes: [] },
+        themes: currentRound.themes.map((th) => ({ ...th, roundId: currentRound.id })),
+        questions: themes().reduce<Question[]>((acc, curr) => {
+          acc.push(...curr.questions)
+          return acc
+        }, [] as Question[]),
+      }
+
+      const data = await apiPost("rounds", request)
+      debugger
     }
 
     setGameEvent({ ...store.gameEvent, rounds })
